@@ -8,6 +8,25 @@ from reportlab.lib import colors
 
 st.set_page_config(page_title="AI Multi-Style Resume Generator", page_icon="🎨", layout="wide")
 
+# Custom styling to remove form border and clean up inputs
+st.markdown("""
+<style>
+/* Remove the outer st.form border box */
+[data-testid="stForm"] {
+    border: none !important;
+    padding: 0px !important;
+    background: transparent !important;
+}
+
+/* Style input fields */
+div[data-baseweb="input"] > div, div[data-baseweb="textarea"] > div {
+    background-color: #1A202C !important;
+    border: 1px solid #4A5568 !important;
+    border-radius: 4px;
+}
+</style>
+""", unsafe_allow_html=True)
+
 st.title("AI Professional Resume & Cover Letter Generator")
 st.markdown("Build a full-page, stylish resume with instant visual layout switching for **Sahitool**.")
 
@@ -23,9 +42,9 @@ with col_form:
         with c1:
             email = st.text_input("Email", value="rahul@sahitool.com")
         with c2:
-            phone = st.text_input("Phone", value="+91 98765 43210")
+            phone = st.text_input("Phone", value="##########")
             
-        photo_url = st.text_input("Optional Photo Image URL (e.g. Unsplash / LinkedIn link)", value="", placeholder="https://example.com/photo.jpg")
+        photo_url = st.text_input("Optional Photo Image URL", value="", placeholder="https://example.com/photo.jpg")
         
         education = st.text_input("Education / Degree", value="B.Tech in Electrical & Automation Engineering")
         skills = st.text_input("Key Skills (Comma separated)", value="Python, CAD, Solar Systems, Automation, UI/UX")
@@ -34,16 +53,16 @@ with col_form:
         template_style = st.selectbox(
             "Choose Resume Style Design",
             [
-                "1. Sunshine (Bright Header & Accent Bar)", 
-                "2. Elegant Executive (Left Sidebar Layout)", 
-                "3. Modern Corporate (Clean Professional Blue)", 
-                "4. Minimalist Classic (Simple & Timeless)",
-                "5. Creative Bold (Dark Header & Contrast)",
-                "6. Startup Fresh (Green Accent & Modern)",
-                "7. Compact Grid (Two-Column Skills Focus)",
-                "8. Professional Timeline (Structured Borders)",
-                "9. Executive Split (Side Profile & Details)",
-                "10. Simple ATS-Friendly (Plain & Standard)"
+                "1. Sunshine (Bright Accent)", 
+                "2. Elegant Executive (Left Sidebar)", 
+                "3. Modern Corporate (Clean Blue)", 
+                "4. Minimalist Classic (Simple)",
+                "5. Creative Bold (Dark Contrast)",
+                "6. Startup Fresh (Green Accent)",
+                "7. Compact Grid (Two-Column Skills)",
+                "8. Professional Timeline",
+                "9. Executive Split",
+                "10. Simple ATS-Friendly"
             ]
         )
         
@@ -54,31 +73,22 @@ def generate_pdf(name, title, mail, ph, edu, sk, exp, style_name):
     doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
     story = []
     
-    # Theme Color Configurations matching Preview
     if "Sunshine" in style_name:
         accent_color = colors.HexColor("#D69E2E")
-        bg_color = colors.HexColor("#FEFCBF")
     elif "Startup Fresh" in style_name:
         accent_color = colors.HexColor("#2F855A")
-        bg_color = colors.HexColor("#F0FFF4")
     elif "Creative Bold" in style_name:
         accent_color = colors.HexColor("#1A202C")
-        bg_color = colors.HexColor("#2D3748")
     elif "Elegant Executive" in style_name or "Executive Split" in style_name:
         accent_color = colors.HexColor("#2B6CB0")
-        bg_color = colors.HexColor("#EBF8FF")
     elif "Minimalist Classic" in style_name:
         accent_color = colors.HexColor("#4A5568")
-        bg_color = colors.HexColor("#EDF2F7")
     else:
         accent_color = colors.HexColor("#1A365D")
-        bg_color = colors.HexColor("#F7FAFC")
 
-    # Typography Styles
-    is_creative_bold = "Creative Bold" in style_name
-    name_style = ParagraphStyle('DocName', fontName='Helvetica-Bold', fontSize=22, textColor=colors.white if is_creative_bold else accent_color, spaceAfter=4, leading=26)
-    title_style = ParagraphStyle('DocTitle', fontName='Helvetica-Bold', fontSize=12, textColor=colors.HexColor("#CBD5E0") if is_creative_bold else colors.HexColor("#4A5568"), spaceAfter=4, leading=15)
-    contact_style = ParagraphStyle('DocContact', fontName='Helvetica', fontSize=10, textColor=colors.HexColor("#A0AEC0") if is_creative_bold else colors.HexColor("#718096"), spaceAfter=0, leading=13)
+    name_style = ParagraphStyle('DocName', fontName='Helvetica-Bold', fontSize=22, textColor=accent_color, spaceAfter=2, leading=26)
+    title_style = ParagraphStyle('DocTitle', fontName='Helvetica-Bold', fontSize=12, textColor=colors.HexColor("#4A5568"), spaceAfter=4, leading=15)
+    contact_style = ParagraphStyle('DocContact', fontName='Helvetica', fontSize=10, textColor=colors.HexColor("#718096"), spaceAfter=0, leading=13)
     
     heading_style = ParagraphStyle('SectionHeading', fontName='Helvetica-Bold', fontSize=12, textColor=accent_color, spaceBefore=14, spaceAfter=3, leading=15)
     body_style = ParagraphStyle('BodyDark', fontName='Helvetica', fontSize=10, textColor=colors.HexColor("#2D3748"), spaceAfter=4, leading=14)
@@ -123,39 +133,22 @@ def generate_pdf(name, title, mail, ph, edu, sk, exp, style_name):
 
         layout_table = Table([[sidebar_story, main_story]], colWidths=[180, 350])
         layout_table.setStyle(TableStyle([
-            ('BACKGROUND', (0,0), (0,0), bg_color),
             ('VALIGN', (0,0), (-1,-1), 'TOP'),
             ('TOPPADDING', (0,0), (-1,-1), 0),
             ('BOTTOMPADDING', (0,0), (-1,-1), 0),
-            ('LEFTPADDING', (0,0), (0,0), 10),
+            ('LEFTPADDING', (0,0), (0,0), 0),
             ('RIGHTPADDING', (0,0), (0,0), 10),
             ('LEFTPADDING', (1,0), (1,0), 15),
             ('RIGHTPADDING', (1,0), (1,0), 0),
-            ('LINELEFT', (0,0), (0,0), 4, accent_color),
         ]))
         story.append(layout_table)
 
     else:
-        # Robust 2-Column Header Table to prevent clipping/missing bar issue
-        header_content = [
-            Paragraph(name.upper(), name_style),
-            Paragraph(title, title_style),
-            Spacer(1, 4),
-            Paragraph(f"{mail}  &nbsp;|&nbsp;  {ph}", contact_style)
-        ]
-        
-        header_table = Table([['', header_content]], colWidths=[6, 534])
-        header_table.setStyle(TableStyle([
-            ('BACKGROUND', (0,0), (0,0), accent_color), # Left accent bar column
-            ('BACKGROUND', (1,0), (1,0), bg_color),     # Content background column
-            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-            ('TOPPADDING', (0,0), (-1,-1), 14),
-            ('BOTTOMPADDING', (0,0), (-1,-1), 14),
-            ('LEFTPADDING', (1,0), (1,0), 16),
-            ('RIGHTPADDING', (1,0), (1,0), 16),
-        ]))
-        story.append(header_table)
-        story.append(Spacer(1, 10))
+        story.append(Paragraph(name.upper(), name_style))
+        story.append(Paragraph(title, title_style))
+        story.append(Paragraph(f"{mail}  &nbsp;|&nbsp;  {ph}", contact_style))
+        story.append(Spacer(1, 6))
+        story.append(HRFlowable(width="100%", thickness=2, color=accent_color, spaceBefore=2, spaceAfter=10))
 
         def add_section(title_text):
             story.append(Paragraph(title_text, heading_style))
@@ -169,7 +162,6 @@ def generate_pdf(name, title, mail, ph, edu, sk, exp, style_name):
 
         add_section("CORE COMPETENCIES")
         
-        # 2-Column Grid for Skills matching the HTML preview perfectly
         skill_list = [s.strip() for s in sk.split(",") if s.strip()]
         skill_rows = []
         for i in range(0, len(skill_list), 2):
@@ -202,26 +194,19 @@ with col_preview:
     st.subheader("👁️ Live Full-Page Sheet Preview")
     
     accent_color = "#1A365D"
-    header_bg = "#F7FAFC"
-    border_style = "2px solid #CBD5E0"
     layout_type = "standard"
     
     if "Sunshine" in template_style:
         accent_color = "#D69E2E"
-        header_bg = "#FEFCBF"
     elif "Elegant Executive" in template_style or "Executive Split" in template_style:
         layout_type = "sidebar"
         accent_color = "#2B6CB0"
-        header_bg = "#EBF8FF"
     elif "Creative Bold" in template_style:
         accent_color = "#1A202C"
-        header_bg = "#2D3748"
     elif "Startup Fresh" in template_style:
         accent_color = "#2F855A"
-        header_bg = "#F0FFF4"
     elif "Minimalist Classic" in template_style:
         accent_color = "#4A5568"
-        header_bg = "#EDF2F7"
 
     skills_html = "".join([f"<li style='margin-bottom: 4px;'>{s.strip()}</li>" for s in skills.split(",") if s.strip()])
     skills_grid_html = "".join([f"<div style='margin-bottom: 4px;'>• {s.strip()}</div>" for s in skills.split(",") if s.strip()])
@@ -233,8 +218,8 @@ with col_preview:
 
     if layout_type == "sidebar":
         resume_sheet_html = f"""
-        <div style="background: white; color: #333; padding: 25px; border-radius: 4px; border: {border_style}; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-shadow: 0 6px 18px rgba(0,0,0,0.08); min-height: 750px; box-sizing: border-box; display: flex; gap: 20px;">
-            <div style="width: 35%; background: {header_bg}; padding: 15px; border-radius: 6px; border-left: 5px solid {accent_color}; height: fit-content;">
+        <div style="background: white; color: #333; padding: 30px; border-radius: 4px; border: 1px solid #E2E8F0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-shadow: 0 4px 12px rgba(0,0,0,0.05); min-height: 750px; box-sizing: border-box; display: flex; gap: 25px;">
+            <div style="width: 35%; padding-right: 15px; border-right: 2px solid #EDF2F7; height: fit-content;">
                 {f'<div style="text-align: center; margin-bottom: 15px;"><img src="{photo_url}" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid {accent_color};" /></div>' if photo_url.strip() else ''}
                 <h3 style="color: {accent_color}; font-size: 13px; border-bottom: 2px solid {accent_color}; padding-bottom: 3px; margin-bottom: 8px;">CONTACT</h3>
                 <p style="font-size: 11px; color: #4A5568; word-break: break-all; margin: 0 0 10px 0;"><b>Email:</b><br>{email}</p>
@@ -246,13 +231,13 @@ with col_preview:
                 </ul>
             </div>
             <div style="width: 65%;">
-                <h1 style="color: {accent_color}; margin: 0 0 5px 0; font-size: 22px;">{full_name.upper()}</h1>
+                <h1 style="color: {accent_color}; margin: 0 0 4px 0; font-size: 22px;">{full_name.upper()}</h1>
                 <p style="color: #4A5568; font-weight: bold; margin: 0 0 15px 0; font-size: 12px;">{job_title}</p>
-                <div style="margin-bottom: 12px;">
+                <div style="margin-bottom: 14px;">
                     <h3 style="color: {accent_color}; border-bottom: 2px solid {accent_color}; padding-bottom: 3px; font-size: 13px; margin-bottom: 6px;">SUMMARY</h3>
                     <p style="font-size: 12px; color: #2D3748; line-height: 1.4; margin: 0;">Dedicated {job_title} with solid technical expertise and project execution capability.</p>
                 </div>
-                <div style="margin-bottom: 12px;">
+                <div style="margin-bottom: 14px;">
                     <h3 style="color: {accent_color}; border-bottom: 2px solid {accent_color}; padding-bottom: 3px; font-size: 13px; margin-bottom: 6px;">EDUCATION</h3>
                     <p style="font-size: 12px; color: #2D3748; margin: 0;">{education}</p>
                 </div>
@@ -264,14 +249,13 @@ with col_preview:
         </div>
         """
     else:
-        header_text_color = "#FFFFFF" if "Creative Bold" in template_style else accent_color
         resume_sheet_html = f"""
-        <div style="background: white; color: #333; padding: 40px; border-radius: 4px; border: {border_style}; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-shadow: 0 6px 18px rgba(0,0,0,0.08); min-height: 750px; box-sizing: border-box;">
-            <div style="background: {header_bg}; padding: 20px; border-radius: 6px; border-left: 6px solid {accent_color}; margin-bottom: 20px; overflow: hidden;">
+        <div style="background: white; color: #333; padding: 40px; border-radius: 4px; border: 1px solid #E2E8F0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-shadow: 0 4px 12px rgba(0,0,0,0.05); min-height: 750px; box-sizing: border-box;">
+            <div style="margin-bottom: 20px; border-bottom: 2px solid {accent_color}; padding-bottom: 15px; overflow: hidden;">
                 {photo_html}
-                <h1 style="color: {header_text_color}; margin: 0 0 5px 0; font-size: 24px; letter-spacing: 0.5px;">{full_name.upper()}</h1>
-                <p style="color: {'#CBD5E0' if 'Creative Bold' in template_style else '#4A5568'}; font-weight: bold; margin: 0; font-size: 13px;">{job_title}</p>
-                <p style="color: {'#A0AEC0' if 'Creative Bold' in template_style else '#718096'}; margin: 5px 0 0 0; font-size: 12px;">{email} &nbsp;|&nbsp; {phone}</p>
+                <h1 style="color: {accent_color}; margin: 0 0 4px 0; font-size: 24px; letter-spacing: 0.5px;">{full_name.upper()}</h1>
+                <p style="color: #4A5568; font-weight: bold; margin: 0; font-size: 13px;">{job_title}</p>
+                <p style="color: #718096; margin: 5px 0 0 0; font-size: 12px;">{email} &nbsp;|&nbsp; {phone}</p>
             </div>
             <div style="margin-bottom: 20px;">
                 <h3 style="color: {accent_color}; border-bottom: 2px solid {accent_color}; padding-bottom: 4px; font-size: 14px; margin-bottom: 8px;">PROFESSIONAL SUMMARY</h3>
